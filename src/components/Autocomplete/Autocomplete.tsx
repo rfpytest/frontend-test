@@ -22,7 +22,9 @@ type InjectedAutocompleteProps = Pick<State, "highlightIndex"> & {};
 interface Props<Item> {
   items?: Item[];
   getItemValue?: (item: Item) => string;
+  filterFn?: (item: Item) => boolean;
   children?(props: InjectedAutocompleteProps): JSX.Element;
+  onItemSelectionFn?: Function;
 }
 
 const initialState: State = {
@@ -78,6 +80,8 @@ const Autocomplete = <Item extends object>({
   children,
   items,
   getItemValue,
+  filterFn,
+  onItemSelectionFn,
 }: Props<Item>): JSX.Element => {
   const [{ value, highlightIndex, isOpen, maxIndex }, dispatch] = useReducer(
     reducer,
@@ -95,11 +99,27 @@ const Autocomplete = <Item extends object>({
     return children({ highlightIndex });
   }
 
+  const defaultFilter = (item: Item): boolean => {
+    const itemValue = (getItemValue?.(item) || "").toLowerCase();
+
+    if (!itemValue) return false;
+
+    return itemValue.includes(value.toLowerCase());
+  };
+
+  const onItemSelection = (item: Item) => {
+    dispatch(inputChangeAction(getItemValue?.(item) || value));
+    dispatch(closeItemListAction());
+    onItemSelectionFn?.(item);
+  };
+
   return (
     <div className="autocomplete-wrapper">
       <input
         value={value}
-        onChange={(e) => dispatch(inputChangeAction(e.target.value))}
+        onChange={(e) => {
+          dispatch(inputChangeAction(e.target.value));
+        }}
         onKeyDown={(e) => {
           switch (e.key) {
             case "ArrowUp":
@@ -124,17 +144,20 @@ const Autocomplete = <Item extends object>({
                 itemsRef.current[highlightIndex + 1]?.scrollIntoView();
               }
               break;
-            case "Esc": // IE/Edge specific value
             case "Escape":
               e.preventDefault();
               dispatch(closeItemListAction());
+              break;
+            case "Enter":
+              e.preventDefault();
+              isOpen && items?.length && onItemSelection(items[highlightIndex]);
               break;
           }
         }}
       />
       {isOpen && (
         <ul className="items-list">
-          {items?.map((item, index) => (
+          {items?.filter(filterFn || defaultFilter).map((item, index) => (
             <li
               className={index === highlightIndex ? "item-highlighted" : ""}
               ref={(el) => (itemsRef.current[index] = el)}
