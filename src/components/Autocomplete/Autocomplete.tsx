@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from "react";
+import React, { useReducer, useEffect, useRef } from "react";
 import {
   Actions,
   Constants,
@@ -83,9 +83,11 @@ const Autocomplete = <Item extends object>({
     reducer,
     initialState
   );
+  const itemsRef = useRef<Partial<Array<HTMLLIElement | null>>>([]);
 
   useEffect(() => {
     if (items) {
+      itemsRef.current = Array.from({ length: items.length });
       dispatch(setMaxIndexAction(items.length && items.length - 1));
     }
   }, [items]);
@@ -108,6 +110,7 @@ const Autocomplete = <Item extends object>({
                 dispatch(closeItemListAction());
               } else {
                 dispatch(arrowUpAction());
+                itemsRef.current[highlightIndex - 1]?.scrollIntoView();
               }
               break;
             case "ArrowDown":
@@ -118,6 +121,7 @@ const Autocomplete = <Item extends object>({
                 dispatch(closeItemListAction());
               } else {
                 dispatch(arrowDownAction());
+                itemsRef.current[highlightIndex + 1]?.scrollIntoView();
               }
               break;
             case "Esc": // IE/Edge specific value
@@ -131,7 +135,10 @@ const Autocomplete = <Item extends object>({
       {isOpen && (
         <ul className="items-list">
           {items?.map((item, index) => (
-            <li className={index === highlightIndex ? "item-highlighted" : ""}>
+            <li
+              className={index === highlightIndex ? "item-highlighted" : ""}
+              ref={(el) => (itemsRef.current[index] = el)}
+            >
               {getItemValue?.(item)}
             </li>
           ))}
