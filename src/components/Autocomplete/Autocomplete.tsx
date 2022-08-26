@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useRef, Reducer } from "react";
+import React, { useReducer, useEffect, useRef } from "react";
 import {
   Actions,
   Constants,
@@ -23,7 +23,6 @@ interface Props<Item> {
   items?: Item[];
   getItemValue?: (item: Item) => string;
   filterFn?: (value: string) => (item: Item) => boolean;
-  children?(props: InjectedAutocompleteProps<Item>): JSX.Element;
   onItemSelectionFn?: Function;
   noMatchesLabel?: string;
 }
@@ -36,7 +35,6 @@ const initialState = {
 };
 
 const Autocomplete = <Item extends object>({
-  children,
   items,
   getItemValue,
   filterFn,
@@ -45,8 +43,6 @@ const Autocomplete = <Item extends object>({
 }: Props<Item>): JSX.Element => {
   const reducer = (state: State<Item>, action: Actions<Item>): State<Item> => {
     switch (action.type) {
-      case Constants.CLEAR_INPUT:
-        return { ...initialState, filteredItems: state.filteredItems };
       case Constants.INPUT_CHANGE:
         return {
           ...state,
@@ -102,10 +98,6 @@ const Autocomplete = <Item extends object>({
       )
     );
   }, [value]);
-
-  if (children) {
-    return children({ highlightIndex });
-  }
 
   const defaultFilter = (item: Item): boolean => {
     const itemValue = (getItemValue?.(item) || "").toLowerCase();
