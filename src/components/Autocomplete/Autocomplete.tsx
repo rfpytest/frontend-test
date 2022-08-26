@@ -22,7 +22,7 @@ type InjectedAutocompleteProps<Item> = Pick<State<Item>, "highlightIndex"> & {};
 interface Props<Item> {
   items?: Item[];
   getItemValue?: (item: Item) => string;
-  filterFn?: (item: Item) => boolean;
+  filterFn?: (value: string) => (item: Item) => boolean;
   children?(props: InjectedAutocompleteProps<Item>): JSX.Element;
   onItemSelectionFn?: Function;
   noMatchesLabel?: string;
@@ -97,7 +97,9 @@ const Autocomplete = <Item extends object>({
 
   useEffect(() => {
     dispatch(
-      setFilteredItemsAction(items?.filter(filterFn || defaultFilter) || [])
+      setFilteredItemsAction(
+        items?.filter(filterFn?.(value) || defaultFilter) || []
+      )
     );
   }, [value]);
 

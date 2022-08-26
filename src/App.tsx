@@ -43,6 +43,17 @@ const App = () => {
         getItemValue={(character) => character.name}
         noMatchesLabel="Sadly we haven't found students with that name :'("
       />
+
+      <h1>Find bad students by name (for the first movies at least)</h1>
+      <Autocomplete
+        items={harryPotterCharacters}
+        getItemValue={(character) => character.name}
+        filterFn={(text) => (student) =>
+          student.name === "Draco Malfoy" &&
+          student.name.toLowerCase().includes(text.toLowerCase())}
+        noMatchesLabel="Maybe you can try finding Malfoy ;)"
+        onItemSelectionFn={() => alert("Expelliarmus!")}
+      />
     </>
   );
 };
