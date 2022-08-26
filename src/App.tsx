@@ -37,11 +37,12 @@ const App = () => {
   }, []);
   return (
     <>
+      <h1>Select your favorite Harry Potter student:</h1>
       <Autocomplete
         items={harryPotterCharacters}
         getItemValue={(character) => character.name}
+        noMatchesLabel="Sadly we haven't found students with that name :'("
       />
-      <Autocomplete />
     </>
   );
 };

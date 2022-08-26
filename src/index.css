@@ -23,6 +23,21 @@ body {
   padding: 2px;
 }
 
+.items-list .list-item:hover {
+  background-color: lightgray;
+  cursor: pointer;
+}
+
 .items-list .item-highlighted {
   background-color: yellow;
+}
+
+.items-list .text-highlighted {
+  font-weight: 600;
+  color: red;
+}
+
+.items-list .no-matches-item {
+  font-weight: 600;
+  color: black;
 }

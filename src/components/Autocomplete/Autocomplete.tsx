@@ -25,6 +25,7 @@ interface Props<Item> {
   filterFn?: (item: Item) => boolean;
   children?(props: InjectedAutocompleteProps<Item>): JSX.Element;
   onItemSelectionFn?: Function;
+  noMatchesLabel?: string;
 }
 
 const initialState = {
@@ -40,6 +41,7 @@ const Autocomplete = <Item extends object>({
   getItemValue,
   filterFn,
   onItemSelectionFn,
+  noMatchesLabel,
 }: Props<Item>): JSX.Element => {
   const reducer = (state: State<Item>, action: Actions<Item>): State<Item> => {
     switch (action.type) {
@@ -111,6 +113,19 @@ const Autocomplete = <Item extends object>({
     return itemValue.includes(value.toLowerCase());
   };
 
+  const highlightMatches = (text: string): JSX.Element => {
+    const matchIndex = text.toLowerCase().indexOf(value.toLowerCase());
+    return (
+      <>
+        {text.slice(0, matchIndex)}
+        <span className="text-highlighted">
+          {text.slice(matchIndex, matchIndex + value.length)}
+        </span>
+        {text.slice(matchIndex + value.length)}
+      </>
+    );
+  };
+
   const onItemSelection = (item: Item) => {
     dispatch(inputChangeAction(getItemValue?.(item) || value));
     dispatch(closeItemListAction());
@@ -161,18 +176,28 @@ const Autocomplete = <Item extends object>({
       />
       {isOpen && (
         <ul className="items-list">
-          {filteredItems.map((item, index) => (
-            <li
-              className={index === highlightIndex ? "item-highlighted" : ""}
-              ref={(el) => (itemsRef.current[index] = el)}
-              onClick={(e) => {
-                e.stopPropagation();
-                onItemSelection(item);
-              }}
-            >
-              {getItemValue?.(item)}
+          {filteredItems.map((item, index) => {
+            const itemValue = getItemValue?.(item) || "";
+            return (
+              <li
+                className={`${
+                  index === highlightIndex ? "item-highlighted" : ""
+                } list-item`}
+                ref={(el) => (itemsRef.current[index] = el)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onItemSelection(item);
+                }}
+              >
+                {value === "" ? itemValue : highlightMatches(itemValue)}
+              </li>
+            );
+          })}
+          {filteredItems.length === 0 && (
+            <li className="no-matches-item">
+              {noMatchesLabel || "No matches found"}
             </li>
-          ))}
+          )}
         </ul>
       )}
     </div>
