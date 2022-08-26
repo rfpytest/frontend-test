@@ -67,6 +67,7 @@ const reducer = (state: State, action: Actions): State => {
       return {
         ...state,
         isOpen: action.payload,
+        highlightIndex: 0,
       };
     default:
       return state;
@@ -78,7 +79,7 @@ const Autocomplete = <Item extends object>({
   items,
   getItemValue,
 }: Props<Item>): JSX.Element => {
-  const [{ value, highlightIndex, isOpen }, dispatch] = useReducer(
+  const [{ value, highlightIndex, isOpen, maxIndex }, dispatch] = useReducer(
     reducer,
     initialState
   );
@@ -93,7 +94,7 @@ const Autocomplete = <Item extends object>({
   }
 
   return (
-    <>
+    <div className="autocomplete-wrapper">
       <input
         value={value}
         onChange={(e) => dispatch(inputChangeAction(e.target.value))}
@@ -101,11 +102,23 @@ const Autocomplete = <Item extends object>({
           switch (e.key) {
             case "ArrowUp":
               e.preventDefault();
-              dispatch(arrowUpAction());
+              if (!isOpen) {
+                dispatch(openItemListAction());
+              } else if (highlightIndex === 0) {
+                dispatch(closeItemListAction());
+              } else {
+                dispatch(arrowUpAction());
+              }
               break;
             case "ArrowDown":
               e.preventDefault();
-              dispatch(arrowDownAction());
+              if (!isOpen) {
+                dispatch(openItemListAction());
+              } else if (highlightIndex === maxIndex) {
+                dispatch(closeItemListAction());
+              } else {
+                dispatch(arrowDownAction());
+              }
               break;
             case "Esc": // IE/Edge specific value
             case "Escape":
@@ -115,19 +128,16 @@ const Autocomplete = <Item extends object>({
           }
         }}
       />
-      <ul>
-        {isOpen &&
-          items?.map((item, index) => (
-            <li
-              style={
-                index === highlightIndex ? { backgroundColor: "gray" } : {}
-              }
-            >
+      {isOpen && (
+        <ul className="items-list">
+          {items?.map((item, index) => (
+            <li className={index === highlightIndex ? "item-highlighted" : ""}>
               {getItemValue?.(item)}
             </li>
           ))}
-      </ul>
-    </>
+        </ul>
+      )}
+    </div>
   );
 };
 

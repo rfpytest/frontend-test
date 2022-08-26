@@ -1,3 +1,27 @@
 body {
-    color: darkblue;
-  }
+  color: darkblue;
+}
+
+.autocomplete-wrapper {
+  display: block;
+  margin-bottom: 24px;
+}
+
+.items-list {
+  height: 200px;
+  overflow-y: scroll;
+  position: absolute;
+  background-color: rgba(256, 256, 256, 0.8);
+  border: 1px solid gray;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.items-list li {
+  padding: 2px;
+}
+
+.items-list .item-highlighted {
+  background-color: yellow;
+}
