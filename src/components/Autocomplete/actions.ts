@@ -3,8 +3,8 @@ export const Constants = {
   CLEAR_INPUT: "CLEAR_INPUT",
   ARROW_DOWN: "ARROW_DOWN",
   ARROW_UP: "ARROW_UP",
-  SET_MAX_INDEX: "SET_MAX_INDEX",
   SET_IS_OPEN: "SET_IS_OPEN",
+  SET_FILTERED_ITEMS: "SET_FILTERED_ITEMS",
 } as const;
 
 export const inputChangeAction = (value: string) => ({
@@ -22,11 +22,6 @@ export const arrowDownAction = () => ({
   type: Constants.ARROW_DOWN,
 });
 
-export const setMaxIndexAction = (maxIndex: number) => ({
-  type: Constants.SET_MAX_INDEX,
-  payload: maxIndex,
-});
-
 export const openItemListAction = () => ({
   type: Constants.SET_IS_OPEN,
   payload: true,
@@ -37,12 +32,17 @@ export const closeItemListAction = () => ({
   payload: false,
 });
 
-export type Actions = ReturnType<
+export const setFilteredItemsAction = <Item>(items: Item[]) => ({
+  type: Constants.SET_FILTERED_ITEMS,
+  payload: items,
+});
+
+export type Actions<Item> = ReturnType<
   | typeof inputChangeAction
   | typeof clearInputAction
   | typeof arrowUpAction
   | typeof arrowDownAction
-  | typeof setMaxIndexAction
   | typeof openItemListAction
   | typeof closeItemListAction
+  | typeof setFilteredItemsAction<Item>
 >;
